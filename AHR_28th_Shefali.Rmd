@@ -1,0 +1,306 @@
+---
+title: "AHR_28th"
+output: html_document
+date: "2024-09-11"
+---
+
+```{r}
+system('g++ --version')
+
+```
+
+```{r}
+
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("reactable")
+install.packages("readxl")
+
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(reactable)
+
+```
+
+```{r}
+library(readxl)
+
+# Loading the sheets from the Excel workbook
+ahr_data <- read_excel("C:/Shefali/Reason Foundation/Highway report_28th/ahr_data_28th.xlsx", sheet = "AHR Data")
+scores_rankings <- read_excel("C:/Shefali/Reason Foundation/Highway report_28th/ahr_data_28th.xlsx", sheet = "Scores & Rankings")
+disbursement_data <- read_excel("C:/Shefali/Reason Foundation/Highway report_28th/ahr_data_28th.xlsx", sheet = "Disbursement Data")
+
+```
+
+
+```{r}
+# Capital Disbursement vs. Maintenance Disbursement
+#It showS how much each state spends on infrastructure maintenance relative to its capital investment.
+library(ggplot2)
+ggplot(ahr_data, aes(x = capital_disbursement, y = maintenance_disbursement)) +
+  geom_point(color = "blue") +
+  labs(title = "Capital Disbursement vs. Maintenance Disbursement by State",
+       x = "Capital Disbursement", y = "Maintenance Disbursement") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Chart 2: Urban Lane Miles Percentage vs. Urban Interstate Poor Condition
+# It highlights whether a higher proportion of urban lane miles correlates with poor road conditions
+
+ggplot(ahr_data, aes(x = pct_urban_lane_miles, y = urban_interstate_poor_percent)) +
+  geom_point(color = "red") +
+  labs(title = "Urban Lane Miles Percentage vs. Urban Interstate Poor Condition",
+       x = "Urban Lane Miles Percentage", y = "Urban Interstate Poor Condition Percentage") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Chart 3: State Average Congestion Hours
+#comparison of traffic congestion between states, highlighting those with the most and least congestion.
+
+ggplot(ahr_data, aes(x = reorder(state, state_avg_congestion_hours), y = state_avg_congestion_hours)) +
+  geom_bar(stat = "identity", fill = "green") +
+  coord_flip() +
+  labs(title = "State Average Congestion Hours", x = "State", y = "Average Congestion Hours") +
+  theme_minimal()
+
+
+```
+
+
+
+```{r}
+# Chart 4: Comparison of Fatalities per 100M VMT (Rural, Urban, Other)
+#Identifies which regions are experiencing the highest vehicle fatality rates.
+
+ggplot(ahr_data, aes(x = state)) +
+  geom_bar(aes(y = rural_fatalities_per_100m_VMT), stat = "identity", fill = "blue", alpha = 0.6) +
+  geom_bar(aes(y = urban_fatalities_per_100m_VMT), stat = "identity", fill = "red", alpha = 0.6) +
+  geom_bar(aes(y = other_fatalities_per_100m_VMT), stat = "identity", fill = "purple", alpha = 0.6) +
+  labs(title = "Fatalities per 100M VMT by Area Type", x = "State", y = "Fatalities per 100M VMT") +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+# Scatter plot: Actual Value vs. Expected Value by Key Metrics
+ggplot(disbursement_data, aes(x = exp_value, y = value, color = key_metrics)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") + # Line showing where value = exp_value
+  labs(title = "Actual vs. Expected Disbursement by Key Metrics",
+       x = "Expected Disbursement Value", y = "Actual Disbursement Value") +
+  theme_minimal()
+
+```
+
+```{r}
+# Bar chart: Disbursement Value by State and Key Metric
+ggplot(disbursement_data, aes(x = state, y = value, fill = key_metrics)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Disbursement Value by State and Key Metric",
+       x = "State", y = "Disbursement Value") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+```
+
+```{r}
+# Bar chart: State Rankings by Overall Score
+ggplot(scores_rankings, aes(x = reorder(state, overall_score), y = overall_score)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "State Rankings by Overall Score", x = "State", y = "Overall Score") +
+  theme_minimal()
+
+
+```
+
+```{r}
+#Poor Road Conditions vs. Scores - 
+# Scatter plot: Poor Road Conditions vs. Urban Interstate Poor Percent Score
+ggplot(scores_rankings, aes(x = urban_interstate_poor_percent_score, y = poor_bridges_percent_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "blue") +
+  labs(title = "Urban Interstate Poor Percent Score vs. Poor Bridges Percent Score",
+       x = "Urban Interstate Poor Percent Score", y = "Poor Bridges Percent Score") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Bar chart: Disbursement Values by Key Metrics
+ggplot(disbursement_data, aes(x = state, y = value, fill = key_metrics)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Disbursement by Key Metrics Across States",
+       x = "State", y = "Disbursement Value") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+```
+
+
+```{r}
+# Scatter plot: Expected vs. Actual Disbursement by State
+ggplot(disbursement_data, aes(x = exp_value, y = value, color = state)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") + # Line for equal values
+  labs(title = "Expected vs. Actual Disbursement by State",
+       x = "Expected Disbursement", y = "Actual Disbursement") +
+  theme_minimal()
+
+
+```
+
+```{r}
+
+install.packages("reactable")
+install.packages("dplyr")
+
+library(reactable)
+library(dplyr)
+
+```
+
+```{r}
+score_table <- scores_rankings %>%
+  select(state, overall_score, rural_interstate_poor_percent_score, urban_interstate_poor_percent_score, 
+         rural_fatalities_per_100m_VMT_score, urban_fatalities_per_100m_VMT_score, poor_bridges_percent_score, 
+         state_avg_congestion_hours_score, overall_score_rank, rural_interstate_poor_percent_score_rank, 
+         urban_interstate_poor_percent_score_rank, rural_fatalities_per_100m_VMT_score_rank, 
+         urban_fatalities_per_100m_VMT_score_rank, poor_bridges_percent_score_rank, state_avg_congestion_hours_score_rank) %>%
+  arrange(desc(overall_score))
+
+# Normalization: calculating min and max for scaling
+min_score <- min(score_table$overall_score, na.rm = TRUE)
+max_score <- max(score_table$overall_score, na.rm = TRUE)
+
+# assigning colors based on normalized scores
+color_scale_revised <- function(value) {
+  if (is.na(value)) return("transparent")
+  normalized <- (value - min_score) / (max_score - min_score)
+  rgb <- colorRamp(c("#66bb6a", "#ffeb3b", "#ef5350"))(normalized)
+  rgb <- paste("rgb(", paste(rgb, collapse = ","), ")", sep = "")
+  return(rgb)
+}
+
+# Creating the Reactable Table
+reactable(
+  data = score_table,
+  filterable = TRUE,
+  defaultSorted = list(overall_score = "desc"),
+  columns = list(
+    state = colDef(name = "State"),
+    
+    overall_score = colDef(
+      name = "Overall Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    rural_interstate_poor_percent_score = colDef(
+      name = "Rural Interstate Poor Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    urban_interstate_poor_percent_score = colDef(
+      name = "Urban Interstate Poor Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    rural_fatalities_per_100m_VMT_score = colDef(
+      name = "Rural Fatalities Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    urban_fatalities_per_100m_VMT_score = colDef(
+      name = "Urban Fatalities Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    poor_bridges_percent_score = colDef(
+      name = "Poor Bridges Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    state_avg_congestion_hours_score = colDef(
+      name = "Congestion Hours Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    overall_score_rank = colDef(
+      name = "Overall Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    rural_interstate_poor_percent_score_rank = colDef(
+      name = "Rural Interstate Poor Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    urban_interstate_poor_percent_score_rank = colDef(
+      name = "Urban Interstate Poor Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    rural_fatalities_per_100m_VMT_score_rank = colDef(
+      name = "Rural Fatalities Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    urban_fatalities_per_100m_VMT_score_rank = colDef(
+      name = "Urban Fatalities Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    poor_bridges_percent_score_rank = colDef(
+      name = "Poor Bridges Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    state_avg_congestion_hours_score_rank = colDef(
+      name = "Congestion Hours Rank",
+      format = colFormat(digits = 0)
+    )
+  )
+)
+
+```
+
+
+```{r}
+
+
+```
