@@ -1,0 +1,851 @@
+---
+title: "AHR_28th"
+output: html_document
+date: "2024-09-11"
+---
+
+```{r}
+system('g++ --version')
+
+```
+
+```{r}
+
+options(repos = c(CRAN = "https://cloud.r-project.org"))
+
+install.packages("ggplot2")
+install.packages("dplyr")
+install.packages("reactable")
+install.packages("readxl")
+
+library(ggplot2)
+library(dplyr)
+library(readxl)
+library(reactable)
+
+```
+
+```{r}
+library(readxl)
+
+# Loading the sheets from the Excel workbook
+ahr_data <- read_excel("C:/Shefali/Reason Foundation/Highway report_28th/ahr_data_28th.xlsx", sheet = "AHR Data")
+scores_rankings <- read_excel("C:/Shefali/Reason Foundation/Highway report_28th/ahr_data_28th.xlsx", sheet = "Scores & Rankings")
+disbursement_data <- read_excel("C:/Shefali/Reason Foundation/Highway report_28th/ahr_data_28th.xlsx", sheet = "Disbursement Data")
+
+```
+
+
+```{r}
+# Capital Disbursement vs. Maintenance Disbursement
+#It showS how much each state spends on infrastructure maintenance relative to its capital investment.
+library(ggplot2)
+ggplot(ahr_data, aes(x = capital_disbursement, y = maintenance_disbursement)) +
+  geom_point(color = "blue") +
+  labs(title = "Capital Disbursement vs. Maintenance Disbursement by State",
+       x = "Capital Disbursement", y = "Maintenance Disbursement") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Chart 2: Urban Lane Miles Percentage vs. Urban Interstate Poor Condition
+# It highlights whether a higher proportion of urban lane miles correlates with poor road conditions
+
+ggplot(ahr_data, aes(x = pct_urban_lane_miles, y = urban_interstate_poor_percent)) +
+  geom_point(color = "red") +
+  labs(title = "Urban Lane Miles Percentage vs. Urban Interstate Poor Condition",
+       x = "Urban Lane Miles Percentage", y = "Urban Interstate Poor Condition Percentage") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Chart 3: State Average Congestion Hours
+#comparison of traffic congestion between states, highlighting those with the most and least congestion.
+
+ggplot(ahr_data, aes(x = reorder(state, state_avg_congestion_hours), y = state_avg_congestion_hours)) +
+  geom_bar(stat = "identity", fill = "green") +
+  coord_flip() +
+  labs(title = "State Average Congestion Hours", x = "State", y = "Average Congestion Hours") +
+  theme_minimal()
+
+
+```
+
+
+
+```{r}
+# Chart 4: Comparison of Fatalities per 100M VMT (Rural, Urban, Other)
+#Identifies which regions are experiencing the highest vehicle fatality rates.
+
+ggplot(ahr_data, aes(x = state)) +
+  geom_bar(aes(y = rural_fatalities_per_100m_VMT), stat = "identity", fill = "blue", alpha = 0.6) +
+  geom_bar(aes(y = urban_fatalities_per_100m_VMT), stat = "identity", fill = "red", alpha = 0.6) +
+  geom_bar(aes(y = other_fatalities_per_100m_VMT), stat = "identity", fill = "purple", alpha = 0.6) +
+  labs(title = "Fatalities per 100M VMT by Area Type", x = "State", y = "Fatalities per 100M VMT") +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+# Scatter plot: Actual Value vs. Expected Value by Key Metrics
+ggplot(disbursement_data, aes(x = exp_value, y = value, color = key_metrics)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "red") + # Line showing where value = exp_value
+  labs(title = "Actual vs. Expected Disbursement by Key Metrics",
+       x = "Expected Disbursement Value", y = "Actual Disbursement Value") +
+  theme_minimal()
+
+```
+
+```{r}
+# Bar chart: Disbursement Value by State and Key Metric
+ggplot(disbursement_data, aes(x = state, y = value, fill = key_metrics)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Disbursement Value by State and Key Metric",
+       x = "State", y = "Disbursement Value") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+```
+
+```{r}
+# Bar chart: State Rankings by Overall Score
+ggplot(scores_rankings, aes(x = reorder(state, overall_score), y = overall_score)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  coord_flip() +
+  labs(title = "State Rankings by Overall Score", x = "State", y = "Overall Score") +
+  theme_minimal()
+
+
+```
+
+```{r}
+#Poor Road Conditions vs. Scores - 
+# Scatter plot: Poor Road Conditions vs. Urban Interstate Poor Percent Score
+ggplot(scores_rankings, aes(x = urban_interstate_poor_percent_score, y = poor_bridges_percent_score)) +
+  geom_point() +
+  geom_smooth(method = "lm", col = "blue") +
+  labs(title = "Urban Interstate Poor Percent Score vs. Poor Bridges Percent Score",
+       x = "Urban Interstate Poor Percent Score", y = "Poor Bridges Percent Score") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Bar chart: Disbursement Values by Key Metrics
+ggplot(disbursement_data, aes(x = state, y = value, fill = key_metrics)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Disbursement by Key Metrics Across States",
+       x = "State", y = "Disbursement Value") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+```
+
+
+```{r}
+# Scatter plot: Expected vs. Actual Disbursement by State
+ggplot(disbursement_data, aes(x = exp_value, y = value, color = state)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") + # Line for equal values
+  labs(title = "Expected vs. Actual Disbursement by State",
+       x = "Expected Disbursement", y = "Actual Disbursement") +
+  theme_minimal()
+
+
+```
+
+
+```{r}
+library(dplyr)
+library(reactable)
+
+score_table <- scores_rankings %>%
+  select(state, overall_score, rural_interstate_poor_percent_score, urban_interstate_poor_percent_score, 
+         rural_fatalities_per_100m_VMT_score, urban_fatalities_per_100m_VMT_score, poor_bridges_percent_score, 
+         state_avg_congestion_hours_score, overall_score_rank, rural_interstate_poor_percent_score_rank, 
+         urban_interstate_poor_percent_score_rank, rural_fatalities_per_100m_VMT_score_rank, 
+         urban_fatalities_per_100m_VMT_score_rank, poor_bridges_percent_score_rank, state_avg_congestion_hours_score_rank) %>%
+  arrange(desc(overall_score))
+
+# Normalization: calculating min and max for scaling
+min_score <- min(score_table$overall_score, na.rm = TRUE)
+max_score <- max(score_table$overall_score, na.rm = TRUE)
+
+# assigning colors based on normalized scores
+color_scale_revised <- function(value) {
+  if (is.na(value)) return("transparent")
+  normalized <- (value - min_score) / (max_score - min_score)
+  rgb <- colorRamp(c("#66bb6a", "#ffeb3b", "#ef5350"))(normalized)
+  rgb <- paste("rgb(", paste(rgb, collapse = ","), ")", sep = "")
+  return(rgb)
+}
+
+# Creating the Reactable Table
+reactable(
+  data = score_table,
+  filterable = TRUE,
+  defaultSorted = list(overall_score = "desc"),
+  columns = list(
+    state = colDef(name = "State"),
+    
+    overall_score = colDef(
+      name = "Overall Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    rural_interstate_poor_percent_score = colDef(
+      name = "Rural Interstate Poor Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    urban_interstate_poor_percent_score = colDef(
+      name = "Urban Interstate Poor Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    rural_fatalities_per_100m_VMT_score = colDef(
+      name = "Rural Fatalities Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    urban_fatalities_per_100m_VMT_score = colDef(
+      name = "Urban Fatalities Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    poor_bridges_percent_score = colDef(
+      name = "Poor Bridges Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    state_avg_congestion_hours_score = colDef(
+      name = "Congestion Hours Score",
+      format = colFormat(digits = 2),
+      style = function(value) {
+        list(background = color_scale_revised(value))
+      }
+    ),
+    
+    overall_score_rank = colDef(
+      name = "Overall Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    rural_interstate_poor_percent_score_rank = colDef(
+      name = "Rural Interstate Poor Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    urban_interstate_poor_percent_score_rank = colDef(
+      name = "Urban Interstate Poor Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    rural_fatalities_per_100m_VMT_score_rank = colDef(
+      name = "Rural Fatalities Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    urban_fatalities_per_100m_VMT_score_rank = colDef(
+      name = "Urban Fatalities Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    poor_bridges_percent_score_rank = colDef(
+      name = "Poor Bridges Rank",
+      format = colFormat(digits = 0)
+    ),
+    
+    state_avg_congestion_hours_score_rank = colDef(
+      name = "Congestion Hours Rank",
+      format = colFormat(digits = 0)
+    )
+  )
+)
+
+```
+
+
+```{r}
+#Other Highway Fatality Rate (Per 100 Million Vehicle-Miles Traveled)
+
+table_data <- ahr_data %>%
+  select(state, other_fatalities_per_100m_VMT) %>%
+  arrange(other_fatalities_per_100m_VMT) %>%
+  mutate(rank = row_number())  # Create rank based on fatality rate
+
+# Ranking
+table_data <- table_data %>%
+  select(rank, state, other_fatalities_per_100m_VMT)
+
+reactable(
+  table_data,
+  columns = list(
+    rank = colDef(name = "Rank", align = "center"), 
+    state = colDef(name = "State"),
+    other_fatalities_per_100m_VMT = colDef(
+      name = "Fatality Rate Per 100M Vehicle-Miles",
+      format = colFormat(digits = 2)
+    )
+  ),
+  defaultSorted = "rank",
+  bordered = TRUE,
+  highlight = TRUE,
+  filterable = TRUE,
+  searchable = TRUE,
+  defaultPageSize = 10,
+  striped = TRUE
+)
+
+
+```
+
+```{r}
+##rural_fatalities_per_100m_VMT
+table_data <- ahr_data %>%
+  select(state, rural_fatalities_per_100m_VMT) %>%
+  arrange(rural_fatalities_per_100m_VMT) %>%
+  mutate(rank = row_number())  
+
+table_data <- table_data %>%
+  select(rank, state, rural_fatalities_per_100m_VMT)
+
+reactable(
+  table_data,
+  columns = list(
+    rank = colDef(name = "Rank", align = "center"), 
+    state = colDef(name = "State"),
+    rural_fatalities_per_100m_VMT = colDef(
+      name = "Rural Fatality Rate Per 100M Vehicle-Miles",
+      format = colFormat(digits = 2)  # Limit to 2 decimal places
+    )
+  ),
+  defaultSorted = "rank",
+  bordered = TRUE,
+  highlight = TRUE,
+  filterable = TRUE,
+  searchable = TRUE,
+  defaultPageSize = 10,
+  striped = TRUE
+)
+
+```
+
+
+```{r}
+#Rural interstate poor percent
+
+table_data <- ahr_data %>%
+  select(state, rural_interstate_poor_percent) %>%
+  filter(!is.na(rural_interstate_poor_percent) & rural_interstate_poor_percent != "" & rural_interstate_poor_percent != 0) %>%
+  arrange(rural_interstate_poor_percent) %>%
+  mutate(rank = row_number())
+
+table_data <- table_data %>%
+  select(rank, state, rural_interstate_poor_percent)
+
+reactable(
+  table_data,
+  columns = list(
+    rank = colDef(name = "Rank", align = "center"),
+    state = colDef(name = "State"),
+    rural_interstate_poor_percent = colDef(
+      name = "Rural Interstate Poor Percent",
+      format = colFormat(digits = 2)
+    )
+  ),
+  defaultSorted = "rank",
+  bordered = TRUE,
+  highlight = TRUE,
+  filterable = TRUE,
+  searchable = TRUE,
+  defaultPageSize = 10,
+  striped = TRUE
+)
+
+```
+
+```{r}
+head(ahr_data)
+head(scores_rankings)
+head(disbursement_data)
+
+```
+
+
+
+```{r}
+
+library(readxl)
+library(dplyr)
+library(reactable)
+library(htmltools)
+
+
+# Define the function to generate colored bars proportional to the score
+create_bar <- function(value, max_value, color) {
+  
+  width <- paste0((value / max_value) * 100, "%")
+  
+  
+  div(style = "display: flex; align-items: center; white-space: nowrap;",  
+      div(style = paste("width:", width, "; background-color:", color, "; height: 15px; margin-right: 5px;", sep = "")),  
+      div(sprintf("%.2f", value))  
+  )
+}
+
+# Calculate the max values for each score to use in bar scaling
+max_overall_score <- max(score_table$overall_score, na.rm = TRUE)
+max_rural_interstate_poor_percent <- max(score_table$rural_interstate_poor_percent_score, na.rm = TRUE)
+max_urban_interstate_poor_percent <- max(score_table$urban_interstate_poor_percent_score, na.rm = TRUE)
+max_rural_fatalities <- max(score_table$rural_fatalities_per_100m_VMT_score, na.rm = TRUE)
+max_urban_fatalities <- max(score_table$urban_fatalities_per_100m_VMT_score, na.rm = TRUE)
+max_poor_bridges <- max(score_table$poor_bridges_percent_score, na.rm = TRUE)
+max_congestion_hours <- max(score_table$state_avg_congestion_hours_score, na.rm = TRUE)
+
+# Now create the reactable table as before
+reactable(
+  data = score_table,
+  filterable = TRUE,
+  defaultSorted = list(overall_score = "desc"),
+  columns = list(
+    state = colDef(name = "State", minWidth = 120),  # Control min-width for better display
+    
+    overall_score = colDef(
+      name = "Overall Score",
+      cell = function(value) {
+        create_bar(value, max_overall_score, "#FFCC33")  # Yellow bar for overall score
+      },
+      minWidth = 150  
+    ),
+    
+    rural_interstate_poor_percent_score = colDef(
+      name = "Rural Interstate Poor Score",
+      cell = function(value) {
+        create_bar(value, max_rural_interstate_poor_percent, "#66bb6a")  # Green bar for rural interstate poor score
+      },
+      minWidth = 150  
+    ),
+    
+    urban_interstate_poor_percent_score = colDef(
+      name = "Urban Interstate Poor Score",
+      cell = function(value) {
+        create_bar(value, max_urban_interstate_poor_percent, "#FF6633")  # Red bar for urban interstate poor score
+      },
+      minWidth = 150  
+    ),
+    
+    rural_fatalities_per_100m_VMT_score = colDef(
+      name = "Rural Fatalities Score",
+      cell = function(value) {
+        create_bar(value, max_rural_fatalities, "#990000")  # Dark red for rural fatalities score
+      },
+      minWidth = 150  
+    ),
+    
+    urban_fatalities_per_100m_VMT_score = colDef(
+      name = "Urban Fatalities Score",
+      cell = function(value) {
+        create_bar(value, max_urban_fatalities, "#3399cc")  # Blue for urban fatalities score
+      },
+      minWidth = 150  
+    ),
+    
+    poor_bridges_percent_score = colDef(
+      name = "Poor Bridges Score",
+      cell = function(value) {
+        create_bar(value, max_poor_bridges, "#999999")  # Grey for poor bridges score
+      },
+      minWidth = 150  
+    ),
+    
+    state_avg_congestion_hours_score = colDef(
+      name = "Congestion Hours Score",
+      cell = function(value) {
+        create_bar(value, max_congestion_hours, "#FFCC33")
+      },
+      minWidth = 150  
+    ),
+    
+    overall_score_rank = colDef(
+      name = "Overall Rank",
+      format = colFormat(digits = 0),
+      minWidth = 100
+    ),
+    
+    rural_interstate_poor_percent_score_rank = colDef(
+      name = "Rural Interstate Poor Rank",
+      format = colFormat(digits = 0),
+      minWidth = 100
+    ),
+    
+    urban_interstate_poor_percent_score_rank = colDef(
+      name = "Urban Interstate Poor Rank",
+      format = colFormat(digits = 0),
+      minWidth = 100
+    ),
+    
+    rural_fatalities_per_100m_VMT_score_rank = colDef(
+      name = "Rural Fatalities Rank",
+      format = colFormat(digits = 0),
+      minWidth = 100
+    ),
+    
+    urban_fatalities_per_100m_VMT_score_rank = colDef(
+      name = "Urban Fatalities Rank",
+      format = colFormat(digits = 0),
+      minWidth = 100
+    ),
+    
+    poor_bridges_percent_score_rank = colDef(
+      name = "Poor Bridges Rank",
+      format = colFormat(digits = 0),
+      minWidth = 100
+    ),
+    
+    state_avg_congestion_hours_score_rank = colDef(
+      name = "Congestion Hours Rank",
+      format = colFormat(digits = 0),
+      minWidth = 100
+    )
+  ),
+  defaultPageSize = 10,
+  striped = TRUE,
+  highlight = TRUE,
+  bordered = TRUE,
+  searchable = TRUE,
+  showPageSizeOptions = TRUE,
+  paginationType = "jump"
+)
+
+
+```
+```{r}
+
+# Prepare the data table using only the overall rank and state
+score_table <- scores_rankings %>%
+  select(state, overall_score_rank) %>%
+  arrange(overall_score_rank)
+
+
+reactable(
+  data = score_table,
+  filterable = FALSE, 
+  columns = list(
+    overall_score_rank = colDef(name = "Overall", format = colFormat(digits = 0), minWidth = 80),  # Rank column
+    state = colDef(name = "State", minWidth = 150)  
+  ),
+  defaultPageSize = 10, 
+  striped = TRUE,  
+  bordered = TRUE,  
+  paginationType = "simple",  
+  defaultSorted = list(overall_score_rank = "asc")  
+)
+
+```
+
+
+```{r}
+
+library(dplyr)
+library(reactable)  
+library(htmltools)  
+
+
+score_table_alphabetical <- scores_rankings %>%
+  select(state, overall_score_rank) %>%
+  arrange(state)  # Sort alphabetically
+
+
+max_score_rank <- max(score_table_alphabetical$overall_score_rank, na.rm = TRUE)
+
+
+create_bar_chart <- function(value, max_value, color = "#FFCC33") {
+  bar_style <- list(
+    display = "inline-block",
+    width = paste0(100 * value / max_value, "%"),  
+    height = "15px",
+    backgroundColor = color
+  )
+  htmltools::div(style = bar_style, format(value, big.mark = ",", scientific = FALSE)) 
+}
+
+# Create a reactable table
+reactable(
+  data = score_table_alphabetical,
+  filterable = FALSE, 
+  columns = list(
+    state = colDef(name = "State", minWidth = 150),  
+    overall_score_rank = colDef(
+      name = "Overall Rank", 
+      cell = function(value) {
+        create_bar_chart(value, max_score_rank, "#66bb6a")  
+      },
+      minWidth = 180  # Width of the column
+    )
+  ),
+  defaultPageSize = 10,  
+  striped = TRUE,  
+  highlight = TRUE, 
+  bordered = TRUE,  
+  paginationType = "simple",  
+  defaultSorted = list(state = "asc")  # Sorting alphabetically by state
+)
+
+
+```
+
+
+```{r}
+library(dplyr)
+library(usmap)
+library(readxl)  
+library(ggplot2)
+```
+
+
+```{r}
+# Check the structure of the us_map data
+map_data <- usmap::us_map(regions = "states")
+str(map_data)
+
+```
+
+
+
+```{r}
+
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(maps) 
+
+
+
+score_table <- scores_rankings %>%
+  select(state, overall_score_rank) %>%
+  mutate(state = tolower(state))  
+
+
+states_map <- map_data("state")
+
+
+map_data <- left_join(states_map, score_table, by = c("region" = "state"))
+
+
+state_centers_df <- map_data %>%
+  group_by(region) %>%
+  summarise(long = mean(long), lat = mean(lat)) %>%
+  left_join(score_table, by = c("region" = "state"))
+
+# Plot the U.S. map
+ggplot() +
+  geom_polygon(data = map_data, aes(x = long, y = lat, group = group, fill = overall_score_rank), color = "white") +
+  scale_fill_gradientn(colors = c("green", "yellow", "orange", "red"),
+                       na.value = "gray",  # Color for missing data
+                       breaks = c(1, 10, 20, 30, 40, 50),
+                       labels = c("1", "10", "20", "30", "40", "50")) +
+  theme_minimal() +
+ s
+  geom_text(data = state_centers_df, aes(x = long, y = lat, label = overall_score_rank), size = 3, color = "black") +
+  labs(title = "Overall Highway Performance Rank", fill = "Rank")
+
+
+```
+
+
+```{r}
+
+
+library(readxl)
+library(dplyr)
+library(reactable)  
+library(htmltools) 
+
+
+lane_miles_table <- ahr_data %>%
+  filter(state != "United States") %>%
+  select(state, state_tot_lane_miles) %>%
+  arrange(desc(state_tot_lane_miles)) %>%
+  mutate(Rank = row_number()) %>%
+  select(Rank, state, state_tot_lane_miles)
+
+
+us_total <- data.frame(
+  Rank = NA,  # No rank for the total
+  state = "U.S. Total",
+  state_tot_lane_miles = sum(lane_miles_table$state_tot_lane_miles, na.rm = TRUE)
+)
+
+lane_miles_table <- bind_rows(lane_miles_table, us_total)
+
+
+max_lane_miles <- max(lane_miles_table$state_tot_lane_miles, na.rm = TRUE)
+
+# creating a bar chart 
+create_bar_chart <- function(value, max_value, color = "#66bb6a") {
+  if (is.na(value)) return("")  
+  width_percent <- 100 * value / max_value  
+  bar_style <- list(
+    display = "inline-block",
+    width = paste0(width_percent, "%"),  
+    height = "15px",  # Bar height
+    backgroundColor = color,
+    whiteSpace = "nowrap",  
+    textAlign = "center",   
+    verticalAlign = "middle" 
+  )
+  
+  div_container <- div(style = bar_style, format(round(value), big.mark = ",", scientific = FALSE))
+  return(div_container)
+}
+
+
+htmltools::tagList(
+  
+  htmltools::tags$h3("STATE-CONTROLLED HIGHWAY MILEAGE"),
+  
+  # Create the table
+  reactable(
+    lane_miles_table,
+    columns = list(
+      Rank = colDef(name = "Size", minWidth = 50, align = "center", cell = function(value) {
+        if (is.na(value)) {
+          ""  # Don't display a rank for the "U.S. Total" row
+        } else {
+          value
+        }
+      }),
+      state = colDef(name = "State", minWidth = 120, align = "center"),
+      state_tot_lane_miles = colDef(
+        name = "Lane-Miles",
+        cell = function(value, index) {
+          if (lane_miles_table$state[index] == "U.S. Total") {
+            format(round(value), big.mark = ",", scientific = FALSE)  
+          } else {
+            create_bar_chart(value, max_lane_miles, "#FFCC33")  # Yellow bar for lane miles
+          }
+        },
+        minWidth = 300,  
+        align = "center"   # Align text to the center
+      )
+    ),
+    defaultSorted = list(Rank = "asc"),
+    bordered = TRUE,
+    highlight = TRUE,
+    compact = TRUE,  
+    paginationType = "simple"  
+  )
+)
+
+```
+
+
+```{r}
+# Load necessary libraries
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(maps)  # For getting US state map data
+
+
+score_table <- scores_rankings %>%
+  select(state, capital_disbursement_perlm_score_rank) %>%
+  mutate(
+    state_lower = tolower(state), 
+    state_abb = state.abb[match(state, state.name)] 
+  )
+
+states_map <- map_data("state")
+s
+map_data <- left_join(states_map, score_table, by = c("region" = "state_lower"))
+
+state_centers_df <- map_data %>%
+  group_by(region) %>%
+  summarise(long = mean(long), lat = mean(lat)) %>%
+  left_join(score_table, by = c("region" = "state_lower"))
+
+rank_colors <- c(
+  "1 to 10" = "#66bb6a",  # Green
+  "11 to 20" = "#b2df8a",  # Light Green
+  "21 to 30" = "#ffeb3b",  # Yellow
+  "31 to 40" = "#ff7043",  # Orange
+  "41 to 50" = "#d32f2f",  # Red
+  "Not ranked" = "gray"
+)
+
+#categorize ranks
+categorize_rank <- function(rank) {
+  if (is.na(rank)) {
+    return("Not ranked")
+  } else if (rank <= 10) {
+    return("1 to 10")
+  } else if (rank <= 20) {
+    return("11 to 20")
+  } else if (rank <= 30) {
+    return("21 to 30")
+  } else if (rank <= 40) {
+    return("31 to 40")
+  } else {
+    return("41 to 50")
+  }
+}
+
+map_data$rank_category <- sapply(map_data$capital_disbursement_perlm_score_rank, categorize_rank)
+
+# Plotting rank 
+ggplot() +
+  geom_polygon(data = map_data, aes(x = long, y = lat, group = group, fill = rank_category), color = "white") +
+  scale_fill_manual(values = rank_colors, breaks = names(rank_colors), na.value = "gray") +
+  theme_minimal() +
+ 
+  geom_text(data = state_centers_df, aes(x = long, y = lat, label = paste(state_abb, capital_disbursement_perlm_score_rank, sep = "\n")), size = 3, color = "black") +
+  labs(title = "Capital Disbursements Per Lane-Mile Rank", fill = "Rank")
+
+```
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
+
+```{r}
+
+
+```
+
